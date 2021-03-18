@@ -34,9 +34,9 @@ def evaluate_model(predictions,actual):
 	MSE, RMSE= mean_squared_error(predictions,actual)
 
 	print("===================================================================\n\t\t\tModel Performance\n===================================================================")
-	print("\nMean Absolute Percentage Error" + str(MAPE))
-	print(f"\nMean Absolute Error {MAE}")
+	print(f"\nMean Absolute Percentage Error: {MAPE}")
+	print(f"\nMean Absolute Error: {MAE}")
 	print(f"\nBIAS: {BIAS}")
-	print(f"\nMean Squared Error {MSE}")
-	print(f"\nRoot Mean Squared Error {RMSE}")
+	print(f"\nMean Squared Error: {MSE}")
+	print(f"\nRoot Mean Squared Error: {RMSE}")
 	print("===================================================================")
