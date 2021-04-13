@@ -2,6 +2,7 @@ import numpy as np
 from flask import Flask, request, jsonify, render_template
 import pickle
 import pandas as pd
+import data_prep as dp
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 app = Flask(__name__)
@@ -36,7 +37,7 @@ def predict():
     train = df[:int(0.8*(len(sales)))]
     test = df[int(0.8*(len(sales))):]
 
-    #output = model.forecast(len(test))
+    output = model.forecast(len(test))
     model = ExponentialSmoothing((train["Sum of Sales"]), trend="add", seasonal="mul", seasonal_periods=12)
     fit = model.fit()
     output = fit.forecast(len(test))
@@ -48,6 +49,16 @@ def predict():
 
     return render_template('index.html', prediction_text=table)
 
+
+@app.route('/update',methods=['POST'])
+def update():
+    main_data = dp.main_data_transform()
+    books = dp.books_data(main_data)
+    external = dp.external_database()
+    data = dp.final_data(books, external)
+    return data
+
+
 @app.route('/results',methods=['POST'])
 def results():
 
@@ -56,6 +67,7 @@ def results():
 
     output = prediction[0]
     return jsonify(output)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
