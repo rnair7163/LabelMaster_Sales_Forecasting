@@ -37,13 +37,12 @@ def predict():
     train = df[:int(0.8*(len(sales)))]
     test = df[int(0.8*(len(sales))):]
 
-    output = model.forecast(len(test))
     model = ExponentialSmoothing((train["Sum of Sales"]), trend="add", seasonal="mul", seasonal_periods=12)
     fit = model.fit()
     output = fit.forecast(len(test))
     items = []
-    for i in output:
-    	items.append(Item(i,i))
+    for i in output.index:
+        items.append(Item(i,output[i]))
 
     table = ItemTable(items)
 
@@ -58,6 +57,15 @@ def update():
     data = dp.final_data(books, external)
     return data
 
+@app.route('/plot.png',methods=['POST'])
+def chartTest():
+    plt.plot(output.values)
+    plt.plot(test.values)
+    plt.title("Comparision of Actual Sales with Predictions")
+    plt.xlabel("TimeLine")
+    plt.ylabel("Sales")  
+    plt.savefig("templates/Sales.png")
+    return render_template('index.html', name = plt.show(), url ='templates/Sales.png')
 
 @app.route('/results',methods=['POST'])
 def results():
