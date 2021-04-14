@@ -13,16 +13,21 @@
 
 <body style="background: #fff;">
  <div class="login">
-	<h1>Sales Forecasting</h1>
+  <h1>Sales Forecasting</h1>
 
      <!-- Main Input For Receiving Query to our ML -->
     <form action="{{ url_for('predict')}}"method="post">
-    	<button type="submit" class="btn btn-primary btn-block btn-large">Predict sales in third month</button>
+      <button type="submit" class="btn btn-primary btn-block btn-large">Predict Sales for Books</button>
+    </form>
+
+    <form action="{{ url_for('plot')}}"method="post">
+      <button type="submit" class="btn btn-primary btn-block btn-large">Show Plot</button>
     </form>
 
    <br>
    <br>
    {{ prediction_text }}
+   <!-- <img src={{ url}} alt="Chart" height="42" width="42">  -->
 
  </div>
 </body>
