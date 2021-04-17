@@ -12,12 +12,12 @@ import random
 from flask import Response
 
 app = Flask(__name__)
-model = pickle.load(open('model.pkl', 'rb'))
+#model = pickle.load(open('model.pkl', 'rb'))
 
 # import things
 from flask_table import Table, Col
 
-# Declare your table
+"""# Declare your table
 class ItemTable(Table):
     date = Col('Date')
     sales = Col('Sales Prediction')
@@ -26,7 +26,7 @@ class ItemTable(Table):
 class Item(object):
     def __init__(self, date, sales):
         self.date = date
-        self.sales = sales
+        self.sales = sales"""
 
 @app.route('/')
 def home():
@@ -51,10 +51,12 @@ def predict():
 
     test, output = model_data()
     items = []
+    headings = ("Date", "Total Sales")
+    data = []
     for i in output.index:
-    	items.append(Item(i,output[i]))
-    table = ItemTable(items)
-    return render_template('index.html', prediction_text=table)
+    	data.append([i,output[i]])
+    #table = ItemTable(items)
+    return render_template('index.html', headings=headings,data = data)
 
 @app.route('/plot',methods=['POST'])
 def plot():
@@ -80,4 +82,5 @@ def update():
     return data
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host=os.getenv('IP', '0.0.0.0'), 
+            port=int(os.getenv('PORT', 4415)),debug=True)
