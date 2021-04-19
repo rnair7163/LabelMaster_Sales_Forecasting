@@ -28,7 +28,7 @@ class Item(object):
         self.date = date
         self.sales = sales"""
 
-@app.route('/')
+@app.route('/books')
 def home():
     return render_template('index.html')
 
@@ -46,15 +46,19 @@ def model_data():
     output = fit.forecast(len(test))
     return test,output
 
+@app.route('/')
+def welcome():
+    return render_template('welcome.html')
+
 @app.route('/predict',methods=['POST'])
 def predict():
 
     test, output = model_data()
     items = []
-    headings = ("Date", "Total Sales")
+    headings = ("Date", "Total Sales ($)")
     data = []
     for i in output.index:
-    	data.append([i,output[i]])
+    	data.append([i.strftime("%Y-%m"),round(output[i],3)])
     #table = ItemTable(items)
     return render_template('index.html', headings=headings,data = data)
 
