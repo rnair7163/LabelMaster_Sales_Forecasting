@@ -10,6 +10,15 @@
  <div class="login">
   <h1>Sales Forecasting</h1>
 
+    <form action="{{ url_for('update')}}"method="post">
+      <div class="center">
+        <button class = "button plot_button">Update the data</button>
+      </div>
+    </form>
+    <br>
+    {{ statement}}
+    <br>
+
     <form action="{{ url_for('predict')}}"method="post">
     
         <button class = "button predict_button">Predict Sales for Books</button>
@@ -24,6 +33,9 @@
         <button class = "button plot_button">Show Plot</button>
       </div>
     </form>
+    <br>
+    <br>
+    <img src="{{ user_image }}" alt="User Image">
 
    <br>
    <br>
