@@ -14,22 +14,8 @@ import random
 from flask import Response
 
 app = Flask(__name__)
-#model = pickle.load(open('model.pkl', 'rb'))
 
-# import things
 from flask_table import Table, Col
-
-"""# Declare your table
-class ItemTable(Table):
-    date = Col('Date')
-    sales = Col('Sales Prediction')
-
-# Get some objects
-class Item(object):
-    def __init__(self, date, sales):
-        self.date = date
-        self.sales = sales"""
-
 
 @app.route('/books')
 def home():
@@ -43,8 +29,6 @@ def model_data():
     df = sales.sort_values("Year_Month").set_index("Year_Month")
     train = df[:int(0.8*(len(sales)))]
     test = df[int(0.8*(len(sales))):]
-
-    #output = model.forecast(len(test))
     model = ExponentialSmoothing((train["Sum of Sales"]), trend="add", seasonal="mul", seasonal_periods=12)
     fit = model.fit()
     output = fit.forecast(len(test))
@@ -54,7 +38,6 @@ def model_data():
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
-
 
 @app.route('/predict',methods=['POST'])
 def predict():
