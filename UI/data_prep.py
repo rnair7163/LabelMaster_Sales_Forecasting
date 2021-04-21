@@ -39,6 +39,25 @@ def books_data(data):
 	return books
 
 
+def packaging_data(data):
+	packaging = data[data['Department Dim'] == '506']
+	packaging.sort_values(by='Posting Date', inplace=True)  # sorting the data based on date
+	packaging.reset_index(drop=True, inplace=True)
+	packaging['Posting Date'] = [str(i) for i in packaging['Posting Date']]
+
+	# We will be needing month and year for merging with the external data
+	packaging[['Date', 'Time']] = packaging['Posting Date'].str.split(' ', expand=True)
+
+	y_m = []
+	for i in packaging['Date']:
+		y_m.append(''.join(re.findall('\d+-\d+', i)))
+	packaging['Year_Month'] = pd.Series(y_m)
+	packaging = packaging.groupby('Year_Month').agg({'Sum of Sales': 'sum'})
+	packaging = packaging.reset_index(drop=False)
+	packaging = packaging[packaging.Year_Month >= '2008-01']
+	return packaging
+
+
 def external_database():
 	print('Reading from Trucking Database Freight sheet')
 	freight_m = pd.read_excel(open('/Users/rahulnair/Desktop/Labelmaster_/Labelmaster data/Trucking Database.xlsx', 'rb'), sheet_name='freight-m')
