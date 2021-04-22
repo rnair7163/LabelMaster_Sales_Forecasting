@@ -33,8 +33,8 @@ def home():
 def packaging():
     return render_template('packaging.html')
 
-@app.route('/update',methods=['POST'])
-def update():
+@app.route('/updateBooks',methods=['POST'])
+def updateBooks():
     main_data = dp.main_data_transform()
     books = dp.books_data(main_data)
     # external = dp.external_database()
@@ -42,6 +42,16 @@ def update():
     books.to_csv('books_data.csv')
     statement = 'Books data has been updated'
     return render_template('books.html', statement=statement)
+
+@app.route('/updatePackaging',methods=['POST'])
+def updatePackaging():
+    main_data = dp.main_data_transform()
+    packaging = dp.packaging_data(main_data)
+    # external = dp.external_database()
+    # data = dp.final_data(books, external)
+    packaging.to_csv('packaging_data.csv')
+    statement = 'Packaging data has been updated'
+    return render_template('packaging.html', statement=statement)
 
 def model_data(filepath):
     books = pd.read_csv(filepath)
