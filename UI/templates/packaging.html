@@ -10,13 +10,14 @@
  <div class="login">
   <h1>Sales Forecasting for Packaging</h1>
 
-    <form action="{{ url_for('update')}}"method="post">
+    <form action="{{ url_for('updatePackaging')}}"method="post">
       <div class="center">
         <button class = "button plot_button">Update Packaging data</button>
       </div>
     </form>
     <br>
     {{ statement}}
+    <br>
     <br>
 
     <form action="{{ url_for('predictPackaging')}}"method="post">
