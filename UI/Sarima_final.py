@@ -3,7 +3,7 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import pickle
 
-books = pd.read_csv('/Users/rahulnair/Desktop/Labelmaster_/UI/books_data.csv')
+books = pd.read_csv('books_data.csv')
 sales = books['Sum of Sales']
 date = books['Year_Month']
 

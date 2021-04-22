@@ -5,13 +5,14 @@ from functools import partial, reduce
 import warnings
 warnings.filterwarnings('ignore')
 
-
+#filepath = "/Users/rahulnair/Desktop/Labelmaster_"
+filepath = "UI_Data"
 # Funtions
 def main_data_transform():
 	main = {}
 	for i in range(1,11):
 		print('Reading Labelmaster Daily Sales by Product Group Part ' + str(i))
-		main[i] = pd.read_excel(open('/Users/rahulnair/Desktop/Labelmaster_/Labelmaster data/Labelmaster Daily Sales by Product Group Part ' + str(i) + '.xlsx', 'rb'))
+		main[i] = pd.read_excel(open(filepath+'/Labelmaster data/Labelmaster Daily Sales by Product Group Part ' + str(i) + '.xlsx', 'rb'))
 		main[i].columns = main[i].iloc[1, :]
 		main[i] = main[i].drop(index=[0, 1], axis=0)
 

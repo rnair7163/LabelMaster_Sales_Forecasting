@@ -1,0 +1,62 @@
+<!DOCTYPE html> 
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title class = "title">LabelMaster Forecast</title>
+  <link rel='stylesheet' href='/static/style.css'/>
+</head>
+
+<body>
+ <div class="login">
+  <h1>Sales Forecasting for Packaging</h1>
+
+    <form action="{{ url_for('update')}}"method="post">
+      <div class="center">
+        <button class = "button plot_button">Update Packaging data</button>
+      </div>
+    </form>
+    <br>
+    {{ statement}}
+    <br>
+
+    <form action="{{ url_for('predictPackaging')}}"method="post">
+    
+        <button class = "button predict_button">Predict Sales for Packaging</button>
+      
+    </form>
+
+    <br>
+    <br>
+
+    <form action="{{ url_for('plotPackaging')}}"method="post">
+      <div class="center">
+        <button class = "button plot_button">Show Plot</button>
+      </div>
+    </form>
+    <br>
+    <br>
+
+   <br>
+   <br>
+   <table class = "table">
+     <tr class = "table__header">
+       {% for header in headings %}
+       <th class =  "table__cell">{{ header }}</th>
+       {% endfor %}
+     </tr>
+
+     {% for row in data %}
+
+     <tr class = "table__row">
+       {% for cell in row %}
+       <td class = "table__cell">{{ cell }}</td>
+       {% endfor %}
+     </tr>
+     {% endfor %}
+   </table>
+
+    
+
+ </div>
+</body>
+</html>
