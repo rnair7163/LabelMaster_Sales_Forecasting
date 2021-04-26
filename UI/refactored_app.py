@@ -19,19 +19,23 @@ from matplotlib.figure import Figure
 
 app = Flask(__name__)
 model = pickle.load(open('sarima_model.pkl', 'rb'))
+model_package = pickle.load(open('sarima_packaging_model.pkl', 'rb'))
 
 
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
 
+
 @app.route('/books')
 def home():
     return render_template('books.html')
 
+
 @app.route('/packaging')
 def packaging():
     return render_template('packaging.html')
+
 
 @app.route('/updateBooks',methods=['POST'])
 def updateBooks():
@@ -43,6 +47,7 @@ def updateBooks():
     statement = 'Books data has been updated'
     return render_template('books.html', statement=statement)
 
+
 @app.route('/updatePackaging',methods=['POST'])
 def updatePackaging():
     main_data = dp.main_data_transform()
@@ -53,7 +58,8 @@ def updatePackaging():
     statement = 'Packaging data has been updated'
     return render_template('packaging.html', statement=statement)
 
-def model_data(filepath):
+
+def model_books_data(filepath):
     books = pd.read_csv(filepath)
     books = books.dropna(axis = 1)
     sales = books['Sum of Sales']
@@ -65,8 +71,22 @@ def model_data(filepath):
     pred_unscaled = pred_unscaled_ind .reset_index(drop=True)
     return date, pred_unscaled, sales, pred_ci, pred_unscaled_ind
 
-def forecast(filepath):
-    date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_data(filepath)
+
+def model_package_data(filepath):
+    pack = pd.read_csv(filepath)
+    pack = pack.dropna(axis = 1)
+    sales = pack['Sum of Sales']
+    date = pack['Year_Month']
+    date = pd.to_datetime(date)
+    pred_uc = model_package.get_forecast(steps=12)
+    pred_ci = pred_uc.conf_int()
+    pred_unscaled_ind = pred_uc.predicted_mean
+    pred_unscaled = pred_unscaled_ind .reset_index(drop=True)
+    return date, pred_unscaled, sales, pred_ci, pred_unscaled_ind
+
+
+def books_forecast(filepath):
+    date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_books_data(filepath)
     future = future_dates(date)
     headings = ("Date", "Total Sales ($)")
     data = []
@@ -74,14 +94,42 @@ def forecast(filepath):
         data.append([future[i],round(pred_unscaled[i],3)])
     return (headings, data)
 
+
+def package_forecast(filepath):
+    date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_package_data(filepath)
+    future = future_dates(date)
+    headings = ("Date", "Total Sales ($)")
+    data = []
+    for i in range(len(future)):
+        data.append([future[i],round(pred_unscaled[i],3)])
+    return (headings, data)
+
+
 def future_dates(date):
     future = []
     for i in range(1,13):
         future.append(datetime.strftime(date.iloc[-1] + dateutil.relativedelta.relativedelta(months=i), '%Y-%m'))
     return future
 
-def plot(filepath):
-    date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_data(filepath)
+
+def books_plot(filepath):
+    date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_books_data(filepath)
+    fig, ax = plt.subplots()
+    ax = sales.plot(label='observed', figsize=(14, 7))
+    pred_unscaled_ind.plot(ax=ax, label='Forecast')
+    ax.fill_between(pred_ci.index,
+                    pred_ci.iloc[:, 0],
+                    pred_ci.iloc[:, 1], color='k', alpha=.25)
+    ax.set_xlabel('Number of Observations')
+    ax.set_ylabel('Sales')
+    plt.legend()
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+def package_plot(filepath):
+    date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_package_data(filepath)
     fig, ax = plt.subplots()
     ax = sales.plot(label='observed', figsize=(14, 7))
     pred_unscaled_ind.plot(ax=ax, label='Forecast')
@@ -98,25 +146,29 @@ def plot(filepath):
 
 @app.route('/predictBooks',methods=['POST'])
 def predictBooks():
-	books_data_filepath = "books_data.csv"
-	headings, data = forecast(books_data_filepath)
-	return render_template('books.html', headings=headings, data=data)
+    books_data_filepath = "books_data.csv"
+    headings, data = books_forecast(books_data_filepath)
+    return render_template('books.html', headings=headings, data=data)
+
 
 @app.route('/predictPackaging',methods=['POST'])
 def predictPackaging():
-	packaging_data_filepath = "packaging_data.csv"
-	headings, data = forecast(packaging_data_filepath)
-	return render_template('packaging.html', headings=headings, data=data)
+    packaging_data_filepath = "packaging_data.csv"
+    headings, data = package_forecast(packaging_data_filepath)
+    return render_template('packaging.html', headings=headings, data=data)
+
 
 @app.route('/plotBooks',methods=['POST'])
 def plotBooks():
     books_data_filepath = "books_data.csv"
-    return plot(books_data_filepath)
+    return books_plot(books_data_filepath)
+
 
 @app.route('/plotPackaging',methods=['POST'])
 def plotPackaging():
     packaging_data_filepath = "packaging_data.csv"
-    return plot(packaging_data_filepath)
+    return package_plot(packaging_data_filepath)
+
 
 if __name__ == "__main__":
     app.run(host=os.getenv('IP', '0.0.0.0'), 
