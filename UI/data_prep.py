@@ -1,12 +1,12 @@
 import pandas as pd
 import re
-import numpy as np
-from functools import partial, reduce
 import warnings
 warnings.filterwarnings('ignore')
 
 filepath = "/Users/rahulnair/Desktop/Labelmaster_"
 # filepath = "UI_Data"
+
+
 # Funtions
 def main_data_transform():
 	main = {}
@@ -58,24 +58,6 @@ def packaging_data(data):
 	packaging = packaging[packaging.Year_Month >= '2008-01']
 	return packaging
 
-
-# def final_data(books, external):
-# 	data = pd.merge(books, external, on='Year_Month', how='inner')
-# 	data = feature_selection(data)
-# 	data = data.set_index(keys='Year_Month')
-# 	return data
-
-
-# Main data
-# main_data = main_data_transform()
-
-# Books data
-# books = books_data(main_data)
-
-# getting external data and merging with the books data
-# external = external_database()
-# data = final_data(books, external)
-# print(data.shape)
 
 
 
