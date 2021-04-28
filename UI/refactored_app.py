@@ -1,24 +1,15 @@
 import io
-import numpy as np
-import base64
-import random
-import os
 import pickle
 import pandas as pd
-
-from flask import Flask, request, jsonify, render_template, Response
+from flask import Flask, render_template, Response
 from datetime import datetime
 import dateutil.relativedelta
-
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
 import data_prep as dp
-import matplotlib.pyplot as plt
-
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 app = Flask(__name__)
-model = pickle.load(open('sarima_model.pkl', 'rb'))
+model_books = pickle.load(open('sarima_model.pkl', 'rb'))
 model_package = pickle.load(open('sarima_packaging_model.pkl', 'rb'))
 
 
@@ -41,8 +32,6 @@ def packaging():
 def updateBooks():
     main_data = dp.main_data_transform()
     books = dp.books_data(main_data)
-    # external = dp.external_database()
-    # data = dp.final_data(books, external)
     books.to_csv('books_data.csv')
     statement = 'Books data has been updated'
     return render_template('books.html', statement=statement)
@@ -52,11 +41,10 @@ def updateBooks():
 def updatePackaging():
     main_data = dp.main_data_transform()
     packaging = dp.packaging_data(main_data)
-    # external = dp.external_database()
-    # data = dp.final_data(books, external)
     packaging.to_csv('packaging_data.csv')
     statement = 'Packaging data has been updated'
     return render_template('packaging.html', statement=statement)
+
 
 def model_data(filepath):
     data = pd.read_csv(filepath)
@@ -65,15 +53,12 @@ def model_data(filepath):
     date = data['Year_Month']
     date = pd.to_datetime(date)
     if filepath == 'books_data.csv':
-        pred_uc = model.get_forecast(steps=12)
-        pred_ci = pred_uc.conf_int()
-        pred_unscaled_ind = pred_uc.predicted_mean
-        pred_unscaled = pred_unscaled_ind.reset_index(drop=True)
+        pred_uc = model_books.get_forecast(steps=12)
     else:
         pred_uc = model_package.get_forecast(steps=12)
-        pred_ci = pred_uc.conf_int()
-        pred_unscaled_ind = pred_uc.predicted_mean
-        pred_unscaled = pred_unscaled_ind.reset_index(drop=True)
+    pred_ci = pred_uc.conf_int()
+    pred_unscaled_ind = pred_uc.predicted_mean
+    pred_unscaled = pred_unscaled_ind.reset_index(drop=True)
     return date, pred_unscaled, sales, pred_ci, pred_unscaled_ind
 
 
@@ -103,6 +88,7 @@ def future_dates(date):
         future.append(datetime.strftime(date.iloc[-1] + dateutil.relativedelta.relativedelta(months=i), '%Y-%m'))
     return future
 
+
 def plot(filepath):
     date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_data(filepath)
     fig = Figure(figsize=(25,15))
@@ -122,6 +108,7 @@ def plot(filepath):
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
 
+
 def plot_package(filepath):
     date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_data(filepath)
     fig = Figure(figsize=(25,15))
@@ -140,6 +127,7 @@ def plot_package(filepath):
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
+
 
 @app.route('/predictBooks',methods=['POST'])
 def predictBooks():
