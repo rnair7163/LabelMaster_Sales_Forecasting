@@ -33,6 +33,7 @@ def updateBooks():
     main_data = dp.main_data_transform()
     books = dp.books_data(main_data)
     books.to_csv('books_data.csv')
+    dp.sarima_books(books)
     statement = 'Books data has been updated'
     return render_template('books.html', statement=statement)
 
@@ -42,6 +43,7 @@ def updatePackaging():
     main_data = dp.main_data_transform()
     packaging = dp.packaging_data(main_data)
     packaging.to_csv('packaging_data.csv')
+    dp.sarima_package(packaging)
     statement = 'Packaging data has been updated'
     return render_template('packaging.html', statement=statement)
 
