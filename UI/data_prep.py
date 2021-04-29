@@ -1,21 +1,23 @@
 import pandas as pd
 import re
+import os
+import statsmodels.api as sm
+import pickle
 import warnings
 warnings.filterwarnings('ignore')
-
-#filepath = "/Users/rahulnair/Desktop/Labelmaster_"
 filepath = "UI_Data"
+
 
 # Funtions
 def main_data_transform():
 	main = {}
-	for i in range(1,11):
+	for i in range(1,len(os.listdir(filepath))):
 		print('Reading Labelmaster Daily Sales by Product Group Part ' + str(i))
 		main[i] = pd.read_excel(open(filepath+'/Labelmaster Daily Sales by Product Group Part ' + str(i) + '.xlsx', 'rb'))
 		main[i].columns = main[i].iloc[1, :]
 		main[i] = main[i].drop(index=[0, 1], axis=0)
 
-	l = [main[i] for i in range(1,11)]
+	l = [main[i] for i in range(1,len(os.listdir(filepath)))]
 	main_data = pd.concat(l)
 	return main_data
 
@@ -56,6 +58,28 @@ def packaging_data(data):
 	packaging = packaging.reset_index(drop=False)
 	packaging = packaging[packaging.Year_Month >= '2008-01']
 	return packaging
+
+
+def sarima_books(books):
+	sales = books['Sum of Sales']
+	# running the model
+	mod = sm.tsa.statespace.SARIMAX(sales, order=(1, 0, 0), seasonal_order=(0, 1, 1, 12))
+	results = mod.fit()
+
+	# saving the final model
+	pickle.dump(results, open('sarima_model.pkl', 'wb'))
+
+
+def sarima_package(package):
+	sales = package['Sum of Sales']
+
+	# running the model
+	mod = sm.tsa.statespace.SARIMAX(sales, order=(0, 1, 1), seasonal_order=(0, 1, 1, 12))
+
+	results = mod.fit()
+
+	# saving the final model
+	pickle.dump(results, open('sarima_packaging_model.pkl', 'wb'))
 
 
 
