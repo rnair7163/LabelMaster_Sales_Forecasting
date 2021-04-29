@@ -67,7 +67,7 @@ def sarima_books(books):
 	results = mod.fit()
 
 	# saving the final model
-	pickle.dump(results, open('sarima_model.pkl', 'wb'))
+	pickle.dump(results, open('models/sarima_model.pkl', 'wb'))
 
 
 def sarima_package(package):
@@ -79,7 +79,7 @@ def sarima_package(package):
 	results = mod.fit()
 
 	# saving the final model
-	pickle.dump(results, open('sarima_packaging_model.pkl', 'wb'))
+	pickle.dump(results, open('models/sarima_packaging_model.pkl', 'wb'))
 
 
 

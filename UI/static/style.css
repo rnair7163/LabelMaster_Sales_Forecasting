@@ -1,24 +1,9 @@
 body {
-  color: #222;
-  background: #fff;
+  color: #eee;
+  background: #121212;
   font: 100% system-ui;
   text-align: center;
 }
-
-@media (prefers-color-scheme: dark) {
-  body {
-    color: #eee;
-    background: #121212;
-  }
-
-  body a {
-    color: #809fff;
-  }
-}
-
-
-
-
 
 .table{
 	border-spacing: 0;
