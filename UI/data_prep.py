@@ -11,9 +11,10 @@ filepath = "UI_Data"
 # Funtions
 def main_data_transform():
 	main = {}
-	for i in range(1,len(os.listdir(filepath))):
-		print('Reading Labelmaster Daily Sales by Product Group Part ' + str(i))
-		main[i] = pd.read_excel(open(filepath+'/Labelmaster Daily Sales by Product Group Part ' + str(i) + '.xlsx', 'rb'))
+	for i, j in enumerate(os.listdir(filepath)):
+		print('Reading ' + str(j))
+		main[i] = pd.read_excel(
+			open(filepath + '/' + str(j), 'rb'))
 		main[i].columns = main[i].iloc[1, :]
 		main[i] = main[i].drop(index=[0, 1], axis=0)
 
