@@ -97,6 +97,7 @@ def plot(filepath):
     data = pd.merge(date, sales, right_index=True, left_index=True)
     data.set_index(date, inplace=True)
     data.drop(columns=['Date'], axis=1, inplace=True)
+    data['type'] = 'history'
     future = pd.Series(future_dates(date))
     future.rename('Date', inplace=True)
     headings, data_future, pred_unscaled = books_forecast(filepath)
@@ -104,11 +105,13 @@ def plot(filepath):
     pred_unscaled.rename('Total Sales ($)', inplace=True)
     future_data = pd.merge(future, pred_unscaled, right_index=True, left_index=True)
     future_data.set_index("Date", inplace=True)
+    future_data['type'] = 'forecast'
     frames = [data, future_data]
     result = pd.concat(frames)
+    print(result)
     fig = Figure(figsize=(25,15))
     ax = fig.add_subplot(1, 1, 1)
-    ax.plot(result)
+    ax.plot(result['Total Sales ($)'])
     # ax.plot(sales, label='Observed', linewidth=5)
     # ax.plot(pred_unscaled_ind, label='Forecast', linewidth=5)
     # ax.fill_between(pred_ci.index,
