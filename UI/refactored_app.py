@@ -135,7 +135,7 @@ def predictBooks():
 @app.route('/predictPackaging',methods=['POST'])
 def predictPackaging():
     packaging_data_filepath = "dataframes/packaging_data.csv"
-    headings, data = package_forecast(packaging_data_filepath)
+    headings, data, pred_unscaled = package_forecast(packaging_data_filepath)
     return render_template('packaging.html', headings=headings, data=data)
 
 
