@@ -51,9 +51,8 @@ def updatePackaging():
 def model_data(filepath):
     data = pd.read_csv(filepath)
     data = data.dropna(axis = 1)
-    data = data.rename(columns={'Year_Month': 'Date', 'Sum of Sales': 'Total Sales ($)'})
-    sales = data['Total Sales ($)']
-    date = data['Date']
+    sales = data['Sum of Sales']
+    date = data['Year_Month']
     date = pd.to_datetime(date)
     if filepath == 'dataframes/books_data.csv':
         pred_uc = model_books.get_forecast(steps=12)
@@ -72,7 +71,7 @@ def books_forecast(filepath):
     data = []
     for i in range(len(future)):
         data.append([future[i],round(pred_unscaled[i],3)])
-    return (headings, data, round(pred_unscaled,3))
+    return (headings, data)
 
 
 def package_forecast(filepath):
@@ -82,7 +81,7 @@ def package_forecast(filepath):
     data = []
     for i in range(len(future)):
         data.append([future[i],round(pred_unscaled[i],3)])
-    return (headings, data, round(pred_unscaled,3))
+    return (headings, data)
 
 
 def future_dates(date):
@@ -94,35 +93,19 @@ def future_dates(date):
 
 def plot(filepath):
     date, pred_unscaled, sales, pred_ci, pred_unscaled_ind = model_data(filepath)
-    data = pd.merge(date, sales, right_index=True, left_index=True)
-    data.set_index(date, inplace=True)
-    data.drop(columns=['Date'], axis=1, inplace=True)
-    data['type'] = 'history'
-    future = pd.Series(future_dates(date))
-    future.rename('Date', inplace=True)
-    headings, data_future, pred_unscaled = books_forecast(filepath)
-    pred_unscaled = pd.Series(pred_unscaled)
-    pred_unscaled.rename('Total Sales ($)', inplace=True)
-    future_data = pd.merge(future, pred_unscaled, right_index=True, left_index=True)
-    future_data.set_index("Date", inplace=True)
-    future_data['type'] = 'forecast'
-    frames = [data, future_data]
-    result = pd.concat(frames)
-    print(result)
     fig = Figure(figsize=(25,15))
     ax = fig.add_subplot(1, 1, 1)
-    ax.plot(result['Total Sales ($)'])
-    # ax.plot(sales, label='Observed', linewidth=5)
-    # ax.plot(pred_unscaled_ind, label='Forecast', linewidth=5)
-    # ax.fill_between(pred_ci.index,
-    #                 pred_ci.iloc[:, 0],
-    #                 pred_ci.iloc[:, 1], color='k', alpha=.25)
-    # ax.set_title('Forecast for Next 12 months', fontsize=25)
-    # ax.set_xlabel('Number of Observations', fontsize=20)
-    # for label in (ax.get_xticklabels() + ax.get_yticklabels()):
-    #     label.set_fontsize(20)
-    # ax.set_ylabel('Sales', fontsize=20)
-    # ax.legend(prop={"size":20})
+    ax.plot(sales, label='Observed', linewidth=5)
+    ax.plot(pred_unscaled_ind, label='Forecast', linewidth=5)
+    ax.fill_between(pred_ci.index,
+                    pred_ci.iloc[:, 0],
+                    pred_ci.iloc[:, 1], color='k', alpha=.25)
+    ax.set_title('Forecast for Next 12 months', fontsize=25)
+    ax.set_xlabel('Number of Observations', fontsize=20)
+    for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+        label.set_fontsize(20)
+    ax.set_ylabel('Sales', fontsize=20)
+    ax.legend(prop={"size":20})
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
@@ -131,14 +114,14 @@ def plot(filepath):
 @app.route('/predictBooks',methods=['POST'])
 def predictBooks():
     books_data_filepath = "dataframes/books_data.csv"
-    headings, data, pred_unscaled = books_forecast(books_data_filepath)
+    headings, data = books_forecast(books_data_filepath)
     return render_template('books.html', headings=headings, data=data)
 
 
 @app.route('/predictPackaging',methods=['POST'])
 def predictPackaging():
     packaging_data_filepath = "dataframes/packaging_data.csv"
-    headings, data, pred_unscaled = package_forecast(packaging_data_filepath)
+    headings, data = package_forecast(packaging_data_filepath)
     return render_template('packaging.html', headings=headings, data=data)
 
 
